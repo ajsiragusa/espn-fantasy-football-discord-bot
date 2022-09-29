@@ -22,7 +22,7 @@ Finally, the footer will show the winner of the week, or if the week's not over,
 
 ![espn4](https://user-images.githubusercontent.com/100002813/193148794-900449d7-c83a-4be2-9ed8-c50778fea4ac.png)
 
-# rankings command
+# ranks command (/ranks)
 Lists the current power rankings for the league teams using two step dominance.
 
 ![espn5](https://user-images.githubusercontent.com/100002813/193149537-4ba4f6c1-e098-4969-aab1-5063faf36760.png)
