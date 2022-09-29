@@ -3,6 +3,7 @@ Discord bot that gives information about players, matchups, and power rankings.
 
 # player command (/player player:cooper kupp)
 Pulls team info, position rank, percent owned, injury Status, and weekly fantasy points up to the current week.
+
 ![espn1](https://user-images.githubusercontent.com/100002813/192939160-6d309812-0fe8-47d5-8894-c63a14b3ee52.png)
 
 # matchup command with no parameters (/matchup)
