@@ -34,12 +34,13 @@ async def cmd_matchup(ctx: lightbulb.SlashCommand) -> None:
     if(name == 'all'):
         box_scores = league.box_scores(int(week)) if week else league.box_scores()
         for matchup in box_scores:
-            response += "**" + str(matchup.home_score) + "** " + matchup.home_team.team_abbrev + " vs. " + matchup.away_team.team_abbrev + " **" + str(matchup.away_score) + "**\n"
+            if(matchup.home_score > matchup.away_score):
+                response += str(matchup.home_score) + " - [**" + matchup.home_team.team_abbrev + "**] vs. " + matchup.away_team.team_abbrev + " - " + str(matchup.away_score) + "\n\n"
+            else:
+                response += str(matchup.home_score) + " - " + matchup.home_team.team_abbrev + " vs. [**" + matchup.away_team.team_abbrev + "**] - " + str(matchup.away_score) + "\n\n"
         embed = hikari.Embed(title="List of matchups", description=response)
         embed.set_thumbnail(THUMBNAIL)
     else:
-        embed = hikari.Embed(title="Matchup Info")
-        embed.set_thumbnail(THUMBNAIL)
         team_name = TEAMS[name]
         team_list = league.teams
         home_team = None
@@ -63,27 +64,97 @@ async def cmd_matchup(ctx: lightbulb.SlashCommand) -> None:
                 away_roster = matchup.home_lineup
                 away_team = matchup.home_team
 
+        embed = hikari.Embed(title=home_team.team_name + " vs. " + away_team.team_name)
+        embed.set_thumbnail(THUMBNAIL)
+
+        qb = []
+        qb2 = []
+        rb = []
+        rb2 = []
+        wr = []
+        wr2 = []
+        te = []
+        te2 = []
+        dst = []
+        dst2 = []
+        k = []
+        k2 = []
+
+        for player in home_roster:
+            if(player.slot_position.lower() != "be" or player.slot_position.lower() != "ir"):
+                if(player.position.lower() == 'qb'):
+                    qb.append(player)
+                elif(player.position.lower() == 'rb'):
+                    rb.append(player)
+                elif(player.position.lower() == 'wr'):
+                    wr.append(player)
+                elif(player.position.lower() == 'te'):
+                    te.append(player)
+                elif(player.position.lower() == 'k'):
+                    k.append(player)
+                else:
+                    dst.append(player)
+
+        for player in away_roster:
+            if(player.slot_position.lower() != "be" or player.slot_position.lower() != "ir"):
+                if(player.position.lower() == 'qb'):
+                    qb2.append(player)
+                elif(player.position.lower() == 'rb'):
+                    rb2.append(player)
+                elif(player.position.lower() == 'wr'):
+                    wr2.append(player)
+                elif(player.position.lower() == 'te'):
+                    te2.append(player)
+                elif(player.position.lower() == 'k'):
+                    k2.append(player)
+                else:
+                    dst2.append(player)    
+
+        home_roster.clear()
+        home_roster = qb + rb + wr + te + dst + k
+
+        away_roster.clear()
+        away_roster = qb2 + rb2 + wr2 + te2 + dst2 + k2
+
         home_response = ""
+        home_response_p = ""
+        home_response_m = ""
         home_total_points = 0
         home_total_projected = 0
         for player in home_roster:
             if(player.slot_position.lower() != "be"):
-                home_response += "**" + player.name + "**, points: **" + str(player.points) + "**, projected: **" + str(player.projected_points) + "**\n"
+                home_response += "**" + player.name + "**\n" 
+                home_response_p += "FPTS: **" + str(player.points) + "**, PROJ: **" + str(player.projected_points) + "**\n"
+                home_response_m += player.pro_opponent + " | **" + str(player.pro_pos_rank) + "**\n"
                 home_total_points += player.points
                 home_total_projected += player.projected_points
-        home_response += "Total Points: **" + str(round(home_total_points,1)) + "**, Projected Points: **" + str(round(home_total_projected,1)) + "**"
-        embed.add_field(home_team.team_name, home_response)
+        home_response += "Total Points: "
+        home_response_p += "FPTS: **" + str(round(home_total_points,1)) + "**, PROJ: **" + str(round(home_total_projected,1)) + "**"
+        embed.add_field(home_team.team_abbrev, home_response, inline=True)
+        embed.add_field("Points", home_response_p, inline=True)
+        embed.add_field("Matchup", home_response_m, inline=True)
+
+        embed.add_field("\u200c", "\u200c", inline=False)
 
         away_response = ""
+        away_response_p = ""
+        away_response_m = ""
         away_total_points = 0
         away_total_projected = 0
         for player in away_roster:
             if(player.slot_position.lower() != "be"):
-                away_response += "**" + player.name + "**, points: **" + str(player.points) + "**, projected: **" + str(player.projected_points) + "**\n"
+                away_response += "**" + player.name + "**\n" 
+                away_response_p += "FPTS: **" + str(player.points) + "**, PROJ: **" + str(player.projected_points) + "**\n"
+                away_response_m += player.pro_opponent + " | **" + str(player.pro_pos_rank) + "**\n"
                 away_total_points += player.points
                 away_total_projected += player.projected_points
-        away_response += "Total Points: **" + str(round(away_total_points,1)) + "**, Projected Points: **" + str(round(away_total_projected,1)) + "**"
-        embed.add_field(away_team.team_name, away_response)
+        away_response += "Total Points: "
+        away_response_p += "FPTS: **" + str(round(away_total_points,1)) + "**, PROJ: **" + str(round(away_total_projected,1)) + "**"
+        embed.add_field(away_team.team_abbrev, away_response, inline=True)
+        embed.add_field("Points", away_response_p, inline=True)
+        embed.add_field("Matchup", away_response_m, inline=True)
+
+        
         
         if(home_total_points > away_total_points):
             embed.set_footer("Winner: " + home_team.team_name)
@@ -111,7 +182,7 @@ async def cmd_ranks(ctx: lightbulb.SlashCommand) -> None:
 @lightbulb.option("name", "Enter first and last name of player ex: 'Justin Jefferson'")
 @lightbulb.command("player", "return information of a given player")
 @lightbulb.implements(lightbulb.SlashCommand)
-async def cmd_ranks(ctx: lightbulb.SlashCommand) -> None:
+async def cmd_player(ctx: lightbulb.SlashCommand) -> None:
     name = ctx.options.name
     league_teams = league.teams
     free_agents = league.free_agents()
@@ -156,6 +227,88 @@ async def cmd_ranks(ctx: lightbulb.SlashCommand) -> None:
         embed.add_field("Fantasy Points: ", result, inline=True)
         embed.set_thumbnail(THUMBNAIL)
         embed.set_image(url)
+        await ctx.respond(embed)
+
+@bot.command()
+@lightbulb.option("name", "Enter first of player whos roster to display'")
+@lightbulb.command("roster", "return information of a players roster")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def cmd_roster(ctx: lightbulb.SlashCommand) -> None:
+    box_scores = league.box_scores()
+    name = TEAMS[ctx.options.name]
+
+    roster = []
+    for matchup in box_scores:
+        if(matchup.home_team.team_name == name):
+            roster = matchup.home_lineup
+        elif(matchup.away_team.team_name == name):
+            roster = matchup.away_lineup
+
+    if not roster:
+        await ctx.respond("No player found with name " + ctx.options.name)
+    else:
+        starters = []
+        bench = []
+
+        for roster_player in roster:
+            if(roster_player.slot_position.lower() == "be" or roster_player.slot_position.lower() == "ir"):
+                bench.append(roster_player)
+            else:
+                starters.append(roster_player)
+
+        qb = []
+        rb = []
+        wr = []
+        te = []
+        dst = []
+        k = []
+
+        for strter in starters:
+            if(strter.position.lower() == 'qb'):
+                qb.append(strter)
+            elif(strter.position.lower() == 'rb'):
+                rb.append(strter)
+            elif(strter.position.lower() == 'wr'):
+                wr.append(strter)
+            elif(strter.position.lower() == 'te'):
+                te.append(strter)
+            elif(strter.position.lower() == 'k'):
+                k.append(strter)
+            else:
+                dst.append(strter)
+
+        starters.clear()
+        starters = qb + rb + wr + te + dst + k
+
+        embed = hikari.Embed(title=name + " roster")
+
+        response_s = ""
+        response_s2 = ""
+        response_s3 = ""
+
+        response_b = ""
+        response_b2 = ""
+        response_b3 = ""
+
+        for starter in starters:
+            response_s += "**" + starter.name + "**\n"
+            #response_s2 += "**" + starter.proTeam + "** | " + starter.position + " Rank: **" + str(starter.posRank) + "**\n"   not working for now
+            response_s2 += starter.position + " - " + starter.proTeam + " | **" + starter.injuryStatus + "**\n" 
+            response_s3 += "Owned: **" + str(starter.percent_owned) + "**% + STRT: **" + str(starter.percent_started) + "** Rank: " + str(starter.posRank) + "\n"
+
+        for bench_player in bench:
+            response_b += "**" + bench_player.name + "**\n"
+            response_b2 += bench_player.position + " - " + bench_player.proTeam + " | **" + bench_player.injuryStatus + "**\n" 
+            response_b3 += "Owned: **" + str(bench_player.percent_owned) + "**% | Start: **" + str(bench_player.percent_started) + "** Rank: " + str(bench_player.posRank) + "\n"
+
+
+        embed.add_field("Starters", response_s, inline=True)
+        embed.add_field("Status", response_s2, inline=True)
+        embed.add_field("Rankings", response_s3, inline=True)
+        embed.add_field("\u200c", "\u200c", inline=False)
+        embed.add_field("Bench", response_b, inline=True)
+        embed.add_field("Status", response_b2, inline=True)
+        embed.add_field("Rankings", response_b3, inline=True)
         await ctx.respond(embed)
 
 if __name__ == "__main__":
