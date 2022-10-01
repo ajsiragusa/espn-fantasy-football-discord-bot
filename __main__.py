@@ -191,12 +191,15 @@ async def cmd_player(ctx: lightbulb.SlashCommand) -> None:
     regex = re.compile('[^a-zA-Z]')
     p_name = ""
 
+    save_team = None
+
     for team in league_teams:
         for player in team.roster:
             curr_name = regex.sub('', player.name.lower())
             player_name = regex.sub('', name.lower())
             if(curr_name == player_name):
                 nfl_player = player
+                save_team = team.team_name
     
     if not nfl_player:
         for player in free_agents:
@@ -204,6 +207,7 @@ async def cmd_player(ctx: lightbulb.SlashCommand) -> None:
             player_name = regex.sub('', name.lower())
             if(curr_name == player_name):
                 nfl_player = player
+                save_team = "Free Agent"
 
     if not nfl_player:
         await ctx.respond("Player could not be found")
@@ -224,7 +228,9 @@ async def cmd_player(ctx: lightbulb.SlashCommand) -> None:
         embed.add_field("Position Rank: ", str(nfl_player.posRank), inline=True)
         embed.add_field("Percent Owned: ", str(nfl_player.percent_owned) + "%", inline=True)
         embed.add_field("Injury Status: ", str(nfl_player.injuryStatus), inline=True)
+        embed.add_field("\u200c", "\u200c", inline=False)
         embed.add_field("Fantasy Points: ", result, inline=True)
+        embed.add_field("Current Team: ", save_team, inline=True)
         embed.set_thumbnail(THUMBNAIL)
         embed.set_image(url)
         await ctx.respond(embed)
@@ -236,6 +242,7 @@ async def cmd_player(ctx: lightbulb.SlashCommand) -> None:
 async def cmd_roster(ctx: lightbulb.SlashCommand) -> None:
     box_scores = league.box_scores()
     name = TEAMS[ctx.options.name]
+    team_list = league.teams
 
     roster = []
     for matchup in box_scores:
@@ -280,8 +287,6 @@ async def cmd_roster(ctx: lightbulb.SlashCommand) -> None:
         starters.clear()
         starters = qb + rb + wr + te + dst + k
 
-        embed = hikari.Embed(title=name + " roster")
-
         response_s = ""
         response_s2 = ""
         response_s3 = ""
@@ -292,23 +297,35 @@ async def cmd_roster(ctx: lightbulb.SlashCommand) -> None:
 
         for starter in starters:
             response_s += "**" + starter.name + "**\n"
-            #response_s2 += "**" + starter.proTeam + "** | " + starter.position + " Rank: **" + str(starter.posRank) + "**\n"   not working for now
             response_s2 += starter.position + " - " + starter.proTeam + " | **" + starter.injuryStatus + "**\n" 
-            response_s3 += "Owned: **" + str(starter.percent_owned) + "**% + STRT: **" + str(starter.percent_started) + "** Rank: " + str(starter.posRank) + "\n"
+
+        temp_list = []
+        for player in starters:
+            temp_list.append(league.player_info(playerId=player.playerId))
+
+        for player in temp_list:
+            response_s3 += "O: **" + str(round(player.percent_owned,1)) + "**% ST: **" + str(round(player.percent_started,1)) + "**% RNK: **" + str(player.posRank) + "**\n"
+
+        temp_list.clear()
+        for player in bench:
+            temp_list.append(league.player_info(playerId=player.playerId))
 
         for bench_player in bench:
             response_b += "**" + bench_player.name + "**\n"
             response_b2 += bench_player.position + " - " + bench_player.proTeam + " | **" + bench_player.injuryStatus + "**\n" 
-            response_b3 += "Owned: **" + str(bench_player.percent_owned) + "**% | Start: **" + str(bench_player.percent_started) + "** Rank: " + str(bench_player.posRank) + "\n"
 
-
+        for player in temp_list:
+            response_b3 += "O: **" + str(round(player.percent_owned,1)) + "**% ST: **" + str(round(player.percent_started,1)) + "**% RNK: **" + str(player.posRank) + "**\n"
+        
+        embed = hikari.Embed(title=name)
         embed.add_field("Starters", response_s, inline=True)
-        embed.add_field("Status", response_s2, inline=True)
-        embed.add_field("Rankings", response_s3, inline=True)
+        embed.add_field("Team + Status", response_s2, inline=True)
+        embed.add_field("%'s + Pos Rank", response_s3, inline=True)
         embed.add_field("\u200c", "\u200c", inline=False)
         embed.add_field("Bench", response_b, inline=True)
-        embed.add_field("Status", response_b2, inline=True)
-        embed.add_field("Rankings", response_b3, inline=True)
+        embed.add_field("Team + Status", response_b2, inline=True)
+        embed.add_field("%'s + Pos Rank", response_b3, inline=True)
+
         await ctx.respond(embed)
 
 if __name__ == "__main__":
