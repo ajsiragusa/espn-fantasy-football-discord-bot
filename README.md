@@ -21,7 +21,7 @@ When given a player, the matchup command will give a in depth look at their matc
 This will include the current starting roster, each players total and projected points this week, and the total overall projected and scored points.
 Finally, the footer will show the winner of the week, or if the week's not over, it will show the current winner.
 
-![espn4](https://user-images.githubusercontent.com/100002813/193148794-900449d7-c83a-4be2-9ed8-c50778fea4ac.png)
+![espn6](https://user-images.githubusercontent.com/100002813/197590872-2a210e23-70ee-4cdf-b34e-9e78997c7752.png)
 
 # ranks command (/ranks)
 Lists the current power rankings for the league teams using two step dominance.
