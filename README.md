@@ -23,6 +23,11 @@ Finally, the footer will show the winner of the week, or if the week's not over,
 
 ![espn6](https://user-images.githubusercontent.com/100002813/197590872-2a210e23-70ee-4cdf-b34e-9e78997c7752.png)
 
+# roster command with player parameter (/player name:anthony)
+When given a name of a player, the bot will return that player's roster + information on each player including Position, team, injury status, and roster percentages
+
+![espn7](https://user-images.githubusercontent.com/100002813/197592502-9525bacd-3d64-47a3-ac77-69034cbe2374.png)
+
 # ranks command (/ranks)
 Lists the current power rankings for the league teams using two step dominance.
 
