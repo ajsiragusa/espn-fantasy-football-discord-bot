@@ -1,7 +1,3 @@
-Here’s a cleaner, more polished GitHub-ready README that improves structure, readability, and presentation while keeping your content intact:
-
----
-
 # ESPN Fantasy Football Discord Bot
 
 A **Discord bot built with Python** that integrates with ESPN Fantasy Football to provide real-time insights into your league.
@@ -11,11 +7,11 @@ Get quick access to **player stats, matchups, rosters, and power rankings**—ri
 
 ## Features
 
-* 🔍 Player lookups with detailed stats
-* 📊 Weekly matchup tracking and breakdowns
-* 📋 Full roster views
-* 🏆 League power rankings
-* ⚡ Fast, simple slash commands
+*  Player lookups with detailed stats
+*  Weekly matchup tracking and breakdowns
+*  Full roster views
+*  League power rankings
+*  Fast, simple slash commands
 
 ---
 
@@ -150,11 +146,3 @@ Pull requests are welcome! If you have ideas for new features or improvements, f
 ## License
 
 This project is licensed under the MIT License.
-
----
-
-If you want, I can also:
-
-* Add badges (build, version, license)
-* Make it more “flashy” (GIFs, shields.io, etc.)
-* Tailor it for recruiters / portfolio use (this is a great project for that)
